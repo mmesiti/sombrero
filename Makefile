@@ -12,6 +12,8 @@ default:
 	$(MAKE) sombrero/sombrero5
 	$(MAKE) sombrero/sombrero6
 
+maxeler: CPPFLAGS += -DMAXELER
+	$(MAKE) sombrero/sombrero3
 
 include $(MKDIR)/MkRules
 

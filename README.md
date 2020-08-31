@@ -22,6 +22,12 @@ cd sombrero
 make
 ```
 
+To compile the version using Maxeler's CG implementation, run
+
+```
+make maxeler
+```
+
 ## Usage
 
 To run all benchmarks use the `sombrero.sh` script
@@ -34,6 +40,7 @@ By default this will run a medium scale problem using `<num-cores>` mpi ranks. T
 
 All output is printed to stdout and error messages to stderr.
 
+**Note the for Maxeler version**: launch the executable directly without using `sombrero.sh` (see the **Miscellaneous** section).
 
 ## Parameters
 
