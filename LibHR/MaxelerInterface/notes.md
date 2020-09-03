@@ -34,8 +34,8 @@ inferred from:
   In particular it is worrying that the `ipt` lookup table is not used
   directly to set up the `idn` and `iup` lookup tables. Other lookup tables
   are used instead, e.g., `map_overlexi2id` and its inverse, which are 
-  filled in using functions that use static variables as counters in an 
-  unclear way. 
+  filled in using functions that use static variables as counters in a 
+  way that requires some thinking to be understood.
 -`LibHR/Update/Dphi.c`: To see how the lookup tables, the spinor field and 
   the gauge field really interact.
   From this, we can gather that the indices obtained via the `_FIELD_AT` 
