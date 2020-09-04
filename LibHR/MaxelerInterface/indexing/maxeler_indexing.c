@@ -21,8 +21,8 @@ int maxeler_gaugeO_idx(int x, int y, int z, int t){
 }
 
 int maxeler_spinorE_idx(int x, int y, int z, int t){
-    return _lexord4d(t, x, y, z,
-                     T, X, Y, Z) / 2;
+    return _lexord4d(x, y, z, t,
+                     X, Y, Z, T) / 2;
 }
 
 int maxeler_spinorO_idx(int x, int y, int z, int t){
