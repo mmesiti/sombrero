@@ -372,6 +372,7 @@ int main(int argc,char *argv[]) {
 /* Perform a number of iterations of the multishift conjugate gradient
  * with the Dirac operator g5Cphi_eopre_sq
  */
+#ifndef MAXELER
 static int cg_test(spinor_field *in, spinor_field *out, int iterations){
 
   spinor_field *k,*r,*Mk;
@@ -469,3 +470,26 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
   /* return number of cg iter */
   return cgiter;
 }
+#endif
+#ifdef MAXELER
+#include "maxeler.h"
+static int cg_test(spinor_field *in, spinor_field *out, int iterations){
+
+  // TODO
+  // - allocate:
+  //   - maxeler spinor
+  //   - maxeler gauge E
+  //   - maxeler gauge O
+  //   - maxeler gauge total interleaved
+  // - transform input spinor to single precision
+  // - remap input spinor
+  // - create input spinor solution
+  // - remap gaugeE
+  // - remap gaugeO
+  // - interleave gauges
+  // - call max_cg_cpu_model
+  // - transform out spinor into out
+  //
+
+}
+#endif

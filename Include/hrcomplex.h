@@ -5,7 +5,7 @@
 
 /*******************************************************************************
 *
-* File complex.h
+* File hrcomplex.h
 *
 * Type definitions and macros for complex numbers  
 *

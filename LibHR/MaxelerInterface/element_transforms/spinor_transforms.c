@@ -1,5 +1,6 @@
 #include "su3_types.h"
 #include "../maxeler/max_cg_API.h"
+#include <complex.h>
 
 
 void sombrero_to_maxeler_spinor(void* _sombrero_spinor,

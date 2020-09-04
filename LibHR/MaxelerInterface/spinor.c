@@ -1,6 +1,6 @@
 #include "global.h"
 #include "maxeler/max_cg_API.h"
-#include "reindex.h"
+#include "indexing/reindex.h"
 #include "indexing/maxeler_indexing.h"
 #include "indexing/sombrero_indexing.h"
 #include "element_transforms/spinor_transforms.h"

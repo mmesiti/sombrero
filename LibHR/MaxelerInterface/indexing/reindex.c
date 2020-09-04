@@ -1,5 +1,7 @@
-#include "maxeler_sombrero.h"
 #include "su3_types.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
 
 void _reindex(void* in, void* out,
               size_t inelsize,
@@ -24,13 +26,13 @@ void _reindex(void* in, void* out,
             for(z = zmin; z < zmax; ++z)
                 for(y = ymin; y < ymax; ++y)
                     for(x = xmin; x < xmax; ++x){
-                        if selection(x,y,z,t){
+                        if(selection(x,y,z,t)){
                                 void  *inptr =  in+ inelsize* inmap(x,y,z,t);
                                 void *outptr = out+outelsize*outmap(x,y,z,t);
 
-                                memcp( inel, inptr, inelsize);
+                                memcpy( inel, inptr, inelsize);
                                 transform(outel,inel);
-                                memcp(outptr,outel,outelsize);
+                                memcpy(outptr,outel,outelsize);
                             }
                     }
     }

@@ -1,5 +1,5 @@
 #include "global.h"
- 
+#include <assert.h>
 // maxeler maps
 
 static int _lexord4d(int   x1, int   x2, int   x3, int   x4,

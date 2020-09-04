@@ -1,5 +1,6 @@
 #include "su3_types.h"
-#include "max_cg_API.h"
+#include "../maxeler/max_cg_API.h"
+#include <complex.h>
 
 // sombrero-maxeler element transformations
 void sombrero_to_maxeler_gauge(void* _sombrero_gauge,
@@ -7,14 +8,16 @@ void sombrero_to_maxeler_gauge(void* _sombrero_gauge,
     su3*   maxeler_gauge =  _maxeler_gauge;
     suNg* sombrero_gauge = _sombrero_gauge;
 
-    maxeler_gauge.c00 = sombrero_gauge.c[0];
-    maxeler_gauge.c01 = sombrero_gauge.c[1];
+#define _stdcmplx(x) ((x).re + I * (x).im)
+    maxeler_gauge->c00 = _stdcmplx(sombrero_gauge->c[0]);
+    maxeler_gauge->c01 = _stdcmplx(sombrero_gauge->c[1]);
 
-    maxeler_gauge.c10 = sombrero_gauge.c[3];
-    maxeler_gauge.c11 = sombrero_gauge.c[4];
+    maxeler_gauge->c10 = _stdcmplx(sombrero_gauge->c[3]);
+    maxeler_gauge->c11 = _stdcmplx(sombrero_gauge->c[4]);
 
-    maxeler_gauge.c20 = sombrero_gauge.c[6];
-    maxeler_gauge.c21 = sombrero_gauge.c[7];
+    maxeler_gauge->c20 = _stdcmplx(sombrero_gauge->c[6]);
+    maxeler_gauge->c21 = _stdcmplx(sombrero_gauge->c[7]);
+#undef _stdcmplx
 
 }
 
@@ -27,7 +30,7 @@ void sombrero_to_maxeler_gauge4(void* _sombrero_gauge4,
 
     for(mu=0;mu<4;++mu)
         sombrero_to_maxeler_gauge(
-            _sombrero_gauge4 + SOMBRERO_ORDERING[i]*sizeof(suNg),
-             _maxeler_gauge4 +  MAXELER_ORDERING[i]*sizeof( su3)
+            _sombrero_gauge4 + SOMBRERO_ORDERING[mu]*sizeof(suNg),
+             _maxeler_gauge4 +  MAXELER_ORDERING[mu]*sizeof( su3)
         );
 }

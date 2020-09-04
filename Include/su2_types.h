@@ -9,7 +9,7 @@
 #ifndef SUN_TYPES_H
 #define SUN_TYPES_H
 
-#include "complex.h"
+#include "hrcomplex.h"
 
 /*******************************************************************************
 *
