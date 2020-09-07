@@ -475,21 +475,80 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
 #include "maxeler.h"
 static int cg_test(spinor_field *in, spinor_field *out, int iterations){
 
-  // TODO
   // - allocate:
-  //   - maxeler spinor
+  const int LOCVOL  = (T*X*Y*Z);
+  const int LOCVOLH = LOCVOL/2;
+
+  //   - maxeler spinors E
+  cg_spinor *max_in_spinor   =  malloc( LOCVOL * sizeof(cg_spinor))
+  cg_spinor *max_in_x        =  &max_in_spinor[0];
+	cg_spinor *max_in_b        =  &max_in_x[ LOCVOLH ];
+
   //   - maxeler gauge E
   //   - maxeler gauge O
   //   - maxeler gauge total interleaved
-  // - transform input spinor to single precision
+  const int GAUGESIZE = 4 * LOCVOL;
+  const int GAUGEHSIZE = 4 * LOCVOLH;
+  su3 * max_gauge     = malloc ( 2 * GAUGESIZE * sizeof(su3))
+	su3 * max_gauge_u0  = &max_gauge[0];
+	su3 * max_gauge_u1  = &max_gauge_u0[GAUGEHSIZE];
+	su3 * max_gauge_u01 = &max_gauge_u1[GAUGEHSIZE];
+
+  // - clover E
+  cg_clover * max_clover  = malloc(2 * LOCVOLH * sizeof(cg_clover));
+  cg_clover * max_clover0 = &max_clover[0];
+  cg_clover * max_clover1 = &max_clover[LOCVOLH];
+
   // - remap input spinor
-  // - create input spinor solution
+  sombrero_to_maxeler_spinor_field(in,max_in_b);
+  // - remap trial solution spinor
+  sombrero_to_maxeler_spinor_field(out,max_in_x);
   // - remap gaugeE
+  sombrero_to_maxeler_gauge_field_E(u_gauge,max_gauge_u0);
   // - remap gaugeO
+  sombrero_to_maxeler_gauge_field_O(u_gauge,max_gauge_u1);
   // - interleave gauges
-  // - call max_cg_cpu_model
-  // - transform out spinor into out
-  //
+	max_cg_interleave_gauges_float(max_gauge_u01, max_gauge_u0, max_gauge_u1, LOCVOLH);
+  // - setup clovers to zero
+  neutral_cloverh(max_clover0);
+  neutral_cloverh(max_clover1);
+
+  cg_spinor *out_x;
+  {
+    // - call max_cg_cpu_model
+    out_x = malloc(LOCVOLH * sizeof(cg_spinor));
+    double innorm2=spinor_field_sqnorm_f(in);
+    double res = 1E-11;
+    double gamma = -0.0125; // TODO: check
+
+    int niter_dfe;
+    int no_convergence_dfe = 0;
+    int global_max_exp_gauge = -127;
+	  int global_max_exp_clover_diag = -127;
+	  int global_max_exp_clover_offdiag = -127;
+
+  	cg_spinor *out_x_dfe = max_cg_mpi(
+  			max_in_x, max_in_b, max_gauge_u01, max_clover0, max_clover1,
+  			global_max_exp_gauge, global_max_exp_clover_diag, global_max_exp_clover_offdiag,
+  			gamma, innorm2, &niter_dfe, &no_convergence_dfe, iterations, res,
+  			GLB_X, GLB_Y, GLB_Z, GLB_T,// from global.h
+  			X, Y, Z, T,                // from global.h
+  			MPI_PID, WORLD_SIZE,       // from global.h
+  			SOLVE
+  	);
+
+  }
+
+  // - transform out spinor
+  maxeler_to_sombrero_spinor_field(out_x_cpu,out);
+
+  // deallocations
+  free(out_x);
+  free(max_clover);
+  free(max_gauge);
+  free(max_in_spinor);
+
+  // TODO: convergence checks.
 
 }
 #endif
