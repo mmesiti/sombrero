@@ -180,10 +180,12 @@ sombrero/sp4/%.o sombrero/sp4adj/%.o sombrero/su3max/%.o: sombrero/%.c $(RBLD)
 
 su2/%.o    su2adj/%.o su3/%.o   : SRC=$(patsubst %.o,%.c,$@)
 su3sym/%.o sp4/%.o    sp4adj/%.o: SRC=$(patsubst %.o,%.c,$@)
+su3max/%.o                      : SRC=$(patsubst %.o,%.c,$@)
 su2/%.o    su2adj/%.o su3/%.o   : DEP=$(patsubst %.o,%.d,$@)
 su3sym/%.o sp4/%.o    sp4adj/%.o: DEP=$(patsubst %.o,%.d,$@)
+su3max/%.o                      : DEP=$(patsubst %.o,%.d,$@)
 su2/%.o su2adj/%.o su3/%.o su3sym/%.o sp4/%.o\
-sp4adj/%.o: %.c $(MKDIR)/MkFlags $(RBLD)
+sp4adj/%.o su3max/%.o: %.c $(MKDIR)/MkFlags $(RBLD)
 	if test "$(DFILES)" = ""; then \
 		mkdir -p $(dir $@) &&\
 		$(MAKE) $(DEP) &&\
