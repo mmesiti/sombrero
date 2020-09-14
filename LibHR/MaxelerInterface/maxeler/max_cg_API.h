@@ -123,4 +123,21 @@ void max_cg_write_gauge(
  */
 void max_cg_write_clover(char *filename, char *format, cg_clover *to_write, volume_spec vol);
 
+
+// DEBUG: inferred from examples
+typedef enum {SOLVE, RESIDUE, NEG_MAT_MULT} cg_mode;
+
+
+cg_spinor* max_cg_mpi(cg_spinor* in_x, cg_spinor* in_b,
+                      su3* gauge_u01, cg_clover *clover0,  cg_clover *clover1,
+                      int global_max_exp_gauge, int global_max_exp_clover_diag,
+                      int global_max_exp_clover_offdiag, double gamma, double bb,
+                      int *niter, int *no_convergence, int max_iter, double res,
+                      int LX_domain, int LY_domain,
+                      int LZ_domain, int LT_domain,
+                      int LX_mpi_subdomain, int LY_mpi_subdomain,
+                      int LZ_mpi_subdomain, int LT_mpi_subdomain,
+                      int my_pe, int n_pes, cg_mode mode);
+
+
 #endif /* INCLUDE_MAX_CG_API_H_ */
