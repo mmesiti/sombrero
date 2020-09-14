@@ -480,16 +480,16 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
   const int LOCVOLH = LOCVOL/2;
 
   //   - maxeler spinors E
-  cg_spinor *max_in_spinor   =  malloc( LOCVOL * sizeof(cg_spinor))
-  cg_spinor *max_in_x        =  &max_in_spinor[0];
-	cg_spinor *max_in_b        =  &max_in_x[ LOCVOLH ];
+  cg_spinor* max_in_spinor   =  malloc( LOCVOL * sizeof(cg_spinor));
+  cg_spinor* max_in_x        =  &max_in_spinor[0];
+	cg_spinor* max_in_b        =  &max_in_x[ LOCVOLH ];
 
   //   - maxeler gauge E
   //   - maxeler gauge O
   //   - maxeler gauge total interleaved
   const int GAUGESIZE = 4 * LOCVOL;
   const int GAUGEHSIZE = 4 * LOCVOLH;
-  su3 * max_gauge     = malloc ( 2 * GAUGESIZE * sizeof(su3))
+  su3 * max_gauge     = malloc ( 2 * GAUGESIZE * sizeof(su3));
 	su3 * max_gauge_u0  = &max_gauge[0];
 	su3 * max_gauge_u1  = &max_gauge_u0[GAUGEHSIZE];
 	su3 * max_gauge_u01 = &max_gauge_u1[GAUGEHSIZE];
@@ -527,20 +527,21 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
 	  int global_max_exp_clover_diag = -127;
 	  int global_max_exp_clover_offdiag = -127;
 
-  	cg_spinor *out_x_dfe = max_cg_mpi(
+  	cg_spinor *max_out_x = max_cg_mpi(
   			max_in_x, max_in_b, max_gauge_u01, max_clover0, max_clover1,
   			global_max_exp_gauge, global_max_exp_clover_diag, global_max_exp_clover_offdiag,
   			gamma, innorm2, &niter_dfe, &no_convergence_dfe, iterations, res,
   			GLB_X, GLB_Y, GLB_Z, GLB_T,// from global.h
   			X, Y, Z, T,                // from global.h
   			MPI_PID, WORLD_SIZE,       // from global.h
-  			SOLVE
+  			//SOLVE //DEBUG
+  			1
   	);
 
+    // - transform out spinor
+    maxeler_to_sombrero_spinor_field(max_out_x,out);
   }
 
-  // - transform out spinor
-  maxeler_to_sombrero_spinor_field(out_x_cpu,out);
 
   // deallocations
   free(out_x);
