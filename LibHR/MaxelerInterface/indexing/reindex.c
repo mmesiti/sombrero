@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void _reindex(void* in, void* out,
+void reindex(void* in, void* out,
               size_t inelsize,
               size_t outelsize,
               int xmin, int xmax,

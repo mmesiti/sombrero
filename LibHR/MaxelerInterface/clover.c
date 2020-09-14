@@ -1,6 +1,6 @@
 
 #include "global.h"
-#include "max_cg_API.h"
+#include "maxeler/max_cg_API.h"
 #include <complex.h>
 
 static inline void _unit_matrix_clover(float complex c[18]){

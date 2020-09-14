@@ -1,5 +1,6 @@
 #ifndef MAXELER_REINDEX_H
 #define MAXELER_REINDEX_H
+
 void reindex(void* in, void* out,
              size_t inelsize,
              size_t outelsize,
