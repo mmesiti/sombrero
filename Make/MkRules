@@ -141,9 +141,10 @@ sombrero/sombrero6: sombrero/sp4adj/sombrero.o sombrero/sp4adj/hmc_utils.o $(TOP
 	echo $(_col_link)Linking$(_col_norm) $(call _cfname,$@)... 
 	$(CC) -o $@ $^ $(CFLAGS) -LLibHR -lhr_sp4adj -lm ;\
 
+# Assumes libmaxcg.so is in LibHR/MaxelerInterface.
 sombrero/maxeler: sombrero/su3/sombrero.o sombrero/su3/hmc_utils.o $(TOPDIR)/LibHR/libhr_su3.a
 	echo $(_col_link)Linking$(_col_norm) $(call _cfname,$@)...
-	$(CC) -o $@ $^ $(CFLAGS) -LLibHR -lhr_su3 -lm ;\
+	$(CC) -o $@ $^ $(CFLAGS) -LLibHR -lhr_su3 -lm -LLibHR/MaxelerInterface -lmaxcg;\
 
 
 sombrero/su2/%.o    sombrero/su2adj/%.o sombrero/su3/%.o   : SRC=$(patsubst %.o,%.c,$@)
