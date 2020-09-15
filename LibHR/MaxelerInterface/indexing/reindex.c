@@ -22,18 +22,21 @@ void reindex(void* in, void* out,
 
     {
         int x,y,z,t;
-        for(t = tmin; t < tmax; ++t)
-            for(z = zmin; z < zmax; ++z)
-                for(y = ymin; y < ymax; ++y)
-                    for(x = xmin; x < xmax; ++x){
+        for(x = xmin; x < xmax; ++x)
+            for(y = ymin; y < ymax; ++y)
+                for(z = zmin; z < zmax; ++z)
+                    for(t = tmin; t < tmax; ++t)
+                    {
                         if(selection(x,y,z,t)){
-                                void  *inptr =  in+ inelsize* inmap(x,y,z,t);
-                                void *outptr = out+outelsize*outmap(x,y,z,t);
+                                int inidx =  inmap(x,y,z,t);
+                                int outidx = outmap(x,y,z,t);
+                                void  *inptr =  in+ inelsize*inidx;
+                                void *outptr = out+outelsize*outidx;
 
                                 memcpy( inel, inptr, inelsize);
-                                transform(outel,inel);
+                                transform(inel,outel);
                                 memcpy(outptr,outel,outelsize);
-                            }
+                        }
                     }
     }
 

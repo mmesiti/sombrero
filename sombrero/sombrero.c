@@ -481,24 +481,21 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
   const int LOCVOLH = LOCVOL/2;
 
   //   - maxeler spinors E
-  cg_spinor* max_in_spinor   =  malloc( LOCVOL * sizeof(cg_spinor));
-  cg_spinor* max_in_x        =  &max_in_spinor[0];
-	cg_spinor* max_in_b        =  &max_in_x[ LOCVOLH ];
+  cg_spinor* max_in_x        =   malloc( LOCVOLH * sizeof(cg_spinor));
+	cg_spinor* max_in_b        =   malloc( LOCVOLH * sizeof(cg_spinor));
 
   //   - maxeler gauge E
   //   - maxeler gauge O
   //   - maxeler gauge total interleaved
   const int GAUGESIZE = 4 * LOCVOL;
   const int GAUGEHSIZE = 4 * LOCVOLH;
-  su3 * max_gauge     = malloc ( 2 * GAUGESIZE * sizeof(su3));
-	su3 * max_gauge_u0  = &max_gauge[0];
-	su3 * max_gauge_u1  = &max_gauge_u0[GAUGEHSIZE];
-	su3 * max_gauge_u01 = &max_gauge_u1[GAUGEHSIZE];
+	su3 * max_gauge_u0  = malloc ( GAUGEHSIZE * sizeof(su3));
+	su3 * max_gauge_u1  = malloc ( GAUGEHSIZE * sizeof(su3));
+	su3 * max_gauge_u01 = malloc ( GAUGESIZE * sizeof(su3));
 
   // - clover E
-  cg_clover * max_clover  = malloc(2 * LOCVOLH * sizeof(cg_clover));
-  cg_clover * max_clover0 = &max_clover[0];
-  cg_clover * max_clover1 = &max_clover[LOCVOLH];
+  cg_clover * max_clover0 = malloc(LOCVOLH * sizeof(cg_clover));
+  cg_clover * max_clover1 = malloc(LOCVOLH * sizeof(cg_clover));
 
   // - remap input spinor
   sombrero_to_maxeler_spinor_field(in,max_in_b);
@@ -558,14 +555,20 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
 
     // - transform out spinor
     maxeler_to_sombrero_spinor_field(max_out_x,out);
+
     free(max_out_x);
   }
 
 
   // deallocations
-  free(max_clover);
-  free(max_gauge);
-  free(max_in_spinor);
+  free(max_clover0);
+  free(max_clover1);
+
+  free(max_gauge_u01);
+  free(max_gauge_u1);
+  free(max_gauge_u0);
+  free(max_in_b);
+  free(max_in_x);
 
   // TODO: convergence checks.
 
