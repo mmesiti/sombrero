@@ -72,7 +72,7 @@ WQUAT = $(if $(findstring -DWITH_QUATERNIONS,$(MACRO)),1,0)
 
 #Include
 INCDIR = $(TOPDIR)/Include
-INC = -I $(INCDIR)
+INC += -I $(INCDIR)
 
 GCC = gcc
 CXX ?= g++

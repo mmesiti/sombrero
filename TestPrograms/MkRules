@@ -1,0 +1,25 @@
+
+MKDIR=$(TOPDIR)/Make
+
+EXES += $(TESTS)
+SRCS += $(patsubst %,%.c,$(EXES))
+OBJS += $(patsubst %.c,%.o,$(SRCS))
+
+%.o : %.c
+	$(CC) -I$(TOPDIR)/Include -I$(TOPDIR) -c $(SRC)
+
+%.o : SRC=$(patsubst %.o,%.c,$@)
+
+INC+= -I$(TOPDIR)
+
+include $(MKDIR)/MkRules
+
+define LINK_template
+$(1): $(1).o $$($(1)_OBJS) $$(COMMON_OBJS) $$(LIBS)
+	echo -n "$$(_col_link)Linking$$(_col_norm) $$(call _cfname,$$@)..."
+	$$(CC) -o $$@ $$< $$($(1)_OBJS) $$(COMMON_OBJS) $$(LDFLAGS) &&\
+	echo " $$(_cdone)" || ( echo " $$(_cfailed)" && false )
+endef
+
+
+$(foreach prog,$(EXES),$(eval $(call LINK_template,$(prog))))
