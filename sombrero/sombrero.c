@@ -186,7 +186,8 @@ static void read_cmdline(int argc, char* argv[]) {
   if( !weak ){
     if( size == 0 ){
 
-      x[0]=32; x[1]=24; x[2]=24; x[3]=24;
+      //x[0]=32; x[1]=24; x[2]=24; x[3]=24; // DEBUG
+      x[0]=8; x[1]=8; x[2]=8; x[3]=8;
       error( n_nodes > 1728, 1, "read_cmdline [sombrero.c]",
       "Too many MPI ranks for a small lattice");
 
@@ -476,6 +477,7 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
 #include "assert.h"
 static int cg_test(spinor_field *in, spinor_field *out, int iterations){
 
+  int cgiter;
   // - allocate:
   const int LOCVOL  = (T*X*Y*Z);
   const int LOCVOLH = LOCVOL/2;
@@ -514,7 +516,7 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
   {
     cg_spinor *max_out_x;
     double innorm2=spinor_field_sqnorm_f(in);
-    double res = 1E-11;
+    double res = 1E-50;
     double gamma = -0.0125; // TODO: check
 
 #ifdef WITH_MAXELER_MPI
@@ -536,6 +538,7 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
         MPI_PID, WORLD_SIZE,       // from global.h
         SOLVE
       );
+      cgiter = niter_dfe;
     }
 #else
     {
@@ -548,8 +551,9 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
         max_out_x, max_in_b, max_gauge_u01, max_clover0, max_clover1,
         gamma, innorm2,
         &niter_cpu, &no_convergence_cpu, iterations, res,
-        X, Y, Z, T
+        2*X, Y, Z, T
       );
+      cgiter = niter_cpu;
     }
 #endif
 
@@ -559,6 +563,24 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
     free(max_out_x);
   }
 
+  // TODO: convergence checks.
+  {
+    mshift_par parameter;
+    mshift_par * par = &parameter;
+    double shift = 0;
+    par->n = 1;
+    par->shift = &shift;
+
+    spinor_field* Mk = alloc_spinor_field_f(1,in->type);
+    g5Cphi_eopre_sq(0.1,Mk,&out[0]);
+    ++cgiter;
+    spinor_field_mul_add_assign_f(Mk,-par->shift[0],&out[0]);
+    spinor_field_sub_f(Mk,Mk,in);
+    double norm=spinor_field_sqnorm_f(Mk)/spinor_field_sqnorm_f(in);
+    lprintf("RESULT",0,"Deviation from expected %1.8e, in %d iterations\n",norm,cgiter);
+    error( norm > 1e-8,1,"main [sombrero.c]", "Result of CG inversion incorrect\n");
+    free_spinor_field_f(Mk);
+  }
 
   // deallocations
   free(max_clover0);
@@ -570,7 +592,7 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
   free(max_in_b);
   free(max_in_x);
 
-  // TODO: convergence checks.
+  return cgiter;
 
 }
 #endif
