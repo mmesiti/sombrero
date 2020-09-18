@@ -2,6 +2,12 @@
 #include "global.h"
 #include "maxeler/max_cg_API.h"
 #include <complex.h>
+#include <stdlib.h>
+
+cg_clover* allocate_maxeler_clover_field(){
+  const int LOCVOLH = (T*X*Y*Z)/2;
+  return malloc( LOCVOLH * sizeof(cg_clover));
+}
 
 static inline void _unit_matrix_clover(float complex c[18]){
     // See Eq. 3 of the Maxeler Conjugate Gradient Application on AWS F1 guide

@@ -478,26 +478,22 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
 static int cg_test(spinor_field *in, spinor_field *out, int iterations){
 
   int cgiter;
-  // - allocate:
-  const int LOCVOL  = (T*X*Y*Z);
-  const int LOCVOLH = LOCVOL/2;
 
   //   - maxeler spinors E
-  cg_spinor* max_in_x        =   malloc( LOCVOLH * sizeof(cg_spinor));
-	cg_spinor* max_in_b        =   malloc( LOCVOLH * sizeof(cg_spinor));
+  cg_spinor* max_in_x = allocate_maxeler_spinor_field();
+	cg_spinor* max_in_b = allocate_maxeler_spinor_field();
+
 
   //   - maxeler gauge E
   //   - maxeler gauge O
   //   - maxeler gauge total interleaved
-  const int GAUGESIZE = 4 * LOCVOL;
-  const int GAUGEHSIZE = 4 * LOCVOLH;
-	su3 * max_gauge_u0  = malloc ( GAUGEHSIZE * sizeof(su3));
-	su3 * max_gauge_u1  = malloc ( GAUGEHSIZE * sizeof(su3));
-	su3 * max_gauge_u01 = malloc ( GAUGESIZE * sizeof(su3));
+  su3 * max_gauge_u0  = allocate_maxeler_gauge_field();
+  su3 * max_gauge_u1  = allocate_maxeler_gauge_field();
+  su3 * max_gauge_u01 = allocate_maxeler_gauge_fieldEO();
 
   // - clover E
-  cg_clover * max_clover0 = malloc(LOCVOLH * sizeof(cg_clover));
-  cg_clover * max_clover1 = malloc(LOCVOLH * sizeof(cg_clover));
+  cg_clover * max_clover0 = allocate_maxeler_clover_field();
+  cg_clover * max_clover1 = allocate_maxeler_clover_field();
 
   // - remap input spinor
   sombrero_to_maxeler_spinor_field(in,max_in_b);
@@ -508,7 +504,7 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
   // - remap gaugeO
   sombrero_to_maxeler_gauge_field_O(u_gauge,max_gauge_u1);
   // - interleave gauges
-	max_cg_interleave_gauges_float(max_gauge_u01, max_gauge_u0, max_gauge_u1, LOCVOLH);
+	max_cg_interleave_gauges_float(max_gauge_u01, max_gauge_u0, max_gauge_u1, (T*X*Y*Z)/2);
   // - setup clovers to zero
   neutral_cloverh(max_clover0);
   neutral_cloverh(max_clover1);
@@ -546,7 +542,7 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
       int niter_cpu;
       int no_convergence_cpu = 0;
 
-      max_out_x = malloc(LOCVOLH * sizeof(cg_spinor));
+      max_out_x = allocate_maxeler_spinor_field();
       max_cg_cpu_model(
         max_out_x, max_in_b, max_gauge_u01, max_clover0, max_clover1,
         gamma, innorm2,

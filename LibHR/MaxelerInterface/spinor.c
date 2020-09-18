@@ -5,6 +5,14 @@
 #include "indexing/sombrero_indexing.h"
 #include "element_transforms/spinor_transforms.h"
 #include "spinor_field.h"
+#include <stdlib.h>
+
+cg_spinor* allocate_maxeler_spinor_field(){
+
+  const int LOCVOLH = (T*X*Y*Z)/2;
+  return malloc( LOCVOLH * sizeof(cg_spinor));
+   
+}
 
 void sombrero_to_maxeler_spinor_field(const spinor_field* in, cg_spinor* out){
 

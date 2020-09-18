@@ -4,6 +4,23 @@
 #include "indexing/maxeler_indexing.h"
 #include "indexing/sombrero_indexing.h"
 #include "element_transforms/gauge_transforms.h"
+#include <stdlib.h>
+
+static su3* _allocate_maxeler_gauge_field_with_size(int size){
+    return malloc(size*sizeof(su3));
+}
+
+
+su3* allocate_maxeler_gauge_field(){
+    const int GAUGESIZEH = 4*(T*X*Y*Z)/2;
+    return _allocate_maxeler_gauge_field_with_size(GAUGESIZEH);
+}
+
+su3* allocate_maxeler_gauge_fieldEO(){
+    const int GAUGESIZE = 4*(T*X*Y*Z);
+    return _allocate_maxeler_gauge_field_with_size(GAUGESIZE);
+}
+
 
 void sombrero_to_maxeler_gauge_field_E(suNg_field* in, su3* outE){
     suNg* inptr0 = in->ptr+sombrero_gauge_idx(0,0,0,0);

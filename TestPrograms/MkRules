@@ -6,7 +6,7 @@ SRCS += $(patsubst %,%.c,$(EXES))
 OBJS += $(patsubst %.c,%.o,$(SRCS))
 
 %.o : %.c
-	$(CC) -I$(TOPDIR)/Include -I$(TOPDIR) -c $(SRC)
+	$(CC) $(CPPFLAGS) -I$(TOPDIR)/Include -I$(TOPDIR) -c $(SRC)
 
 %.o : SRC=$(patsubst %.o,%.c,$@)
 
