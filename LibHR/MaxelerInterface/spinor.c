@@ -19,7 +19,7 @@ void sombrero_to_maxeler_spinor_field(const spinor_field* in, cg_spinor* out){
             sombrero_spinor_idx,
             maxeler_spinor_idx,
             sombrero_to_maxeler_spinor,
-            maxeler_any);
+            maxeler_even);
 
 }
 
@@ -36,6 +36,6 @@ void maxeler_to_sombrero_spinor_field(const cg_spinor* in, spinor_field* out){
             maxeler_spinor_idx,
             sombrero_spinor_idx,
             maxeler_to_sombrero_spinor,
-            maxeler_any);
+            maxeler_even);
 
 }
