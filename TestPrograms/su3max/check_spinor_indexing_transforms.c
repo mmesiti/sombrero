@@ -22,7 +22,6 @@ int main(int argc, char* argv[]){
 
         setup_process(&argc,&argv);
 
-
         assert(WORLD_SIZE==1);
 
         /* setup lattice geometry */

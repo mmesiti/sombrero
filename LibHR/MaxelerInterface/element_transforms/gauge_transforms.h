@@ -5,4 +5,11 @@ void sombrero_to_maxeler_gauge(void* _sombrero_gauge,
 
 void sombrero_to_maxeler_gauge4(void* _sombrero_gauge4,
                                 void*  _maxeler_gauge4);
+
+void maxeler_to_sombrero_gauge(void*  _maxeler_gauge,
+                               void* _sombrero_gauge);
+
+void maxeler_to_sombrero_gauge4(void*  _maxeler_gauge4,
+                                void* _sombrero_gauge4);
+
 #endif
