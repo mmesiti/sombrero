@@ -5,7 +5,7 @@
 // sombrero-maxeler element transformations
 void sombrero_to_maxeler_gauge(void* _sombrero_gauge,
                                void*  _maxeler_gauge){
-    suNg* sombrero_gauge = _sombrero_gauge;
+    suNf* sombrero_gauge = _sombrero_gauge;
     su3*   maxeler_gauge =  _maxeler_gauge;
 
 #define _stdcmplx(x) ((x).re + I * (x).im)
@@ -30,7 +30,7 @@ void sombrero_to_maxeler_gauge4(void* _sombrero_gauge4,
 
     for(mu=0;mu<4;++mu)
         sombrero_to_maxeler_gauge(
-            _sombrero_gauge4 + SOMBRERO_ORDERING[mu]*sizeof(suNg),
+            _sombrero_gauge4 + SOMBRERO_ORDERING[mu]*sizeof(suNf),
              _maxeler_gauge4 +  MAXELER_ORDERING[mu]*sizeof( su3)
         );
 }
@@ -38,7 +38,7 @@ void sombrero_to_maxeler_gauge4(void* _sombrero_gauge4,
 void maxeler_to_sombrero_gauge(void* _maxeler_gauge,
                                void*  _sombrero_gauge){
     su3*   maxeler_gauge =  _maxeler_gauge;
-    suNg* sombrero_gauge = _sombrero_gauge;
+    suNf* sombrero_gauge = _sombrero_gauge;
 
 #define _M maxeler_gauge
     _Complex c02 = conj(_M->c10 * _M->c21 - _M->c11 * _M->c20);
@@ -76,6 +76,6 @@ void maxeler_to_sombrero_gauge4(void* _maxeler_gauge4,
     for(mu=0;mu<4;++mu)
         maxeler_to_sombrero_gauge(
              _maxeler_gauge4 +  MAXELER_ORDERING[mu]*sizeof( su3),
-            _sombrero_gauge4 + SOMBRERO_ORDERING[mu]*sizeof(suNg)
+            _sombrero_gauge4 + SOMBRERO_ORDERING[mu]*sizeof(suNf)
         );
 }

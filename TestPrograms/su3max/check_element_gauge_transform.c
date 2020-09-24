@@ -88,6 +88,7 @@ int main(){
             { // checking real part
 #define _getre(a) (a).re
 #define _check_re(i) _check_diff(i,_getre)
+
                 _check_re(0);
                 _check_re(1);
                 _check_re(2);
@@ -102,6 +103,7 @@ int main(){
             { // checking imaginary part
 #define _getim(a) (a).im
 #define _check_im(i) _check_diff(i,_getim)
+
                 _check_im(0);
                 _check_im(1);
                 _check_im(2);

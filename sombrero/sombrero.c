@@ -500,9 +500,9 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
   // - remap trial solution spinor
   sombrero_to_maxeler_spinor_field(out,max_in_x);
   // - remap gaugeE
-  sombrero_to_maxeler_gauge_field_E(u_gauge,max_gauge_u0);
+  sombrero_to_maxeler_gauge_field_E(u_gauge_f,max_gauge_u0);
   // - remap gaugeO
-  sombrero_to_maxeler_gauge_field_O(u_gauge,max_gauge_u1);
+  sombrero_to_maxeler_gauge_field_O(u_gauge_f,max_gauge_u1);
   // - interleave gauges
 	max_cg_interleave_gauges_float(max_gauge_u01, max_gauge_u0, max_gauge_u1, (T*X*Y*Z)/2);
   // - setup clovers to zero

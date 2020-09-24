@@ -1,0 +1,5 @@
+check_dirac_operator
+check_element_gauge_transform
+check_element_spinor_transform
+check_gauge_indexing_transforms
+check_spinor_indexing_transforms
