@@ -8,7 +8,8 @@ Maxeler provides an implementation of the CG algorithm in terms of
 The interface needs to be able to convert spinor fields and gauge fields
 between the two memory layouts. 
 
-## Sombrero Memory layout.
+## Memory Layout
+### Sombrero Memory layout.
 
 The memory layout for spinor fields and gauge fields in Sombrero can be 
 inferred from:
@@ -41,14 +42,14 @@ inferred from:
   From this, we can gather that the indices obtained via the `_FIELD_AT` 
   macro and the `pu_gauge` macros. 
  
-### In short
+#### In short
 
 Trusting the documentation, a solution seems to be  to use the `ipt` macro 
 in the ways that it is used in the `_FIELD_AT` macro and in the `pu_gauge` macro. 
 **It is believed that the links at each site are ordered as TXYZ for 
 consistency**.
 
-## MaxCG memory layout. 
+### MaxCG memory layout. 
 
 Since the mentioning of even/odd is the same everywhere, one can assume that
 both the spinor fields and the gauge fields arrays are split in two. 
@@ -59,5 +60,21 @@ XYZT hierarchy.
 **It is believed that the links at each site are ordered as XYZT for 
 consistency**.
 
+## Dirac operator
+By default, sombrero uses the `g5Cphi_eopre_sq` function as the sparse operator for the 
+CG.
 
+# Sombrero
 
+WIP
+
+* g5Cphi_eopre(mass,etmp,sptr)
+** Cphi_eopre(mass,etmp,sptr)
+*** Dphi_(otmp, sptr);
+*** Cphi_inv_(mass, otmp, otmp, 0);
+*** Dphi_(dptr, otmp);
+*** spinor_field_minus_f(dptr, dptr);
+*** Cphi_(mass, dptr, sptr, 1);
+
+(1-C Deo Cinv Doe) sptr
+** spinor_field_g5_assign_f(etmp)
