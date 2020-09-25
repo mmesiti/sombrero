@@ -92,5 +92,11 @@ int main(int argc, char* argv[]){
         }
     }
 
+    free_spinor_field_f(sombrero_in);
+    free_spinor_field_f(sombrero_out);
+    free(maxeler_intermediate);
+
+    finalize_process();
+    return 0;
 
 }

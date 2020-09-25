@@ -20,7 +20,7 @@ static float random_sign(){
 static void random_vector(complex* c){
     for(int i=0;i<3;++i){
         c[i].re = (1.0e-5+(float)rand()/RAND_MAX)*random_sign();
-        c[i].im = 0;//(1.0e-5+(float)rand()/RAND_MAX)*random_sign(); //DEBUG
+        c[i].im = (1.0e-5+(float)rand()/RAND_MAX)*random_sign();
     }
 }
 
@@ -52,7 +52,7 @@ static void normalize_vector(complex* c){
 
     { // check
         float err = scalar_product(c,c).re - 1;
-        assert(fabs(err) < 3e-7);
+        assert(fabs(err) < 1e-6);
     }
 }
 
@@ -131,6 +131,10 @@ static void random_su3(complex* c){
             c[i].im = cimag(tmp);
         }
     }
+    {
+        _Complex float deterr = det_u3(c) - 1;
+        assert(cabsf(deterr)<1.0e-6);
+    }
 }
 
 
@@ -175,43 +179,84 @@ int main(int argc, char* argv[]){
         printf("Pre checks Ok\n");
     }
 
-    { // one-way determinant check
-        { // even
-            suNf_field* sombrero_in = alloc_gfield_f(&glattice);
-            su3* maxelerE = allocate_maxeler_gauge_field();
+    { // one-way determinant check - even
 
-            {// sombrero_in initialisation
+        suNf_field* sombrero_in = alloc_gfield_f(&glattice);
+        su3* maxelerE = allocate_maxeler_gauge_field();
 
-                _MASTER_FOR(sombrero_in->type,ix){
-                    for(int mu=0;mu<4;++mu){
-                        suNf* sombrero_in_tmp = sombrero_in->ptr + coord_to_index(ix,mu);
-                        random_su3(sombrero_in_tmp->c);
-                    }
-                }
-            }
-            printf("Initialisation Ok\n");
+        {// sombrero_in initialisation
 
-            sombrero_to_maxeler_gauge_field_E(sombrero_in,maxelerE);
-
-            printf("Translation Ok\n");
-
-            { // check that all the matrices are ok
-                for(int i=0;i<T*X*Y*Z/2;++i){
-                    su3 t  = maxelerE[i];
-                    float norm0err = crealf(t.c00*conj(t.c00)+ t.c10*conj(t.c10)+ t.c20*conj(t.c20))-1;
-                    assert(norm0err*norm0err < 1.0e-12);
-                    float norm1err = crealf(t.c01*conj(t.c01)+ t.c11*conj(t.c11)+ t.c21*conj(t.c21))-1;
-                    assert(norm1err*norm1err < 1.0e-12);
-                    float orthoerr = cabsf(t.c01*conj(t.c00)+ t.c11*conj(t.c10)+ t.c21*conj(t.c20));
-                    assert(orthoerr < 1.0e-12);
+            _MASTER_FOR(sombrero_in->type,ix){
+                for(int mu=0;mu<4;++mu){
+                    suNf* sombrero_in_tmp = sombrero_in->ptr + coord_to_index(ix,mu);
+                    random_su3(sombrero_in_tmp->c);
                 }
             }
         }
-        printf("One-way determinant check Ok\n");
+        printf("Initialisation Ok\n");
+
+        sombrero_to_maxeler_gauge_field_E(sombrero_in,maxelerE);
+
+        printf("Translation Ok\n");
+
+        { // check that all the matrices are ok
+            for(int i=0;i<T*X*Y*Z/2*4;++i){
+                su3 t  = maxelerE[i];
+                float norm0err = crealf(t.c00*conj(t.c00)+ t.c10*conj(t.c10)+ t.c20*conj(t.c20))-1;
+                assert(norm0err*norm0err < 1.0e-6);
+                float norm1err = crealf(t.c01*conj(t.c01)+ t.c11*conj(t.c11)+ t.c21*conj(t.c21))-1;
+                assert(norm1err*norm1err < 1.0e-6);
+                float orthoerr = cabsf(t.c01*conj(t.c00)+ t.c11*conj(t.c10)+ t.c21*conj(t.c20));
+                assert(orthoerr < 3.0e-5);
+            }
+        }
+        free_gfield_f(sombrero_in);
+        free(maxelerE);
+        printf("One-way determinant check - even: Ok\n");
 
     }
 
 
+    { // one-way determinant check - odd
+
+        suNf_field* sombrero_in = alloc_gfield_f(&glattice);
+        su3* maxelerO = allocate_maxeler_gauge_field();
+
+        {// sombrero_in initialisation
+
+            _MASTER_FOR(sombrero_in->type,ix){
+                for(int mu=0;mu<4;++mu){
+                    suNf* sombrero_in_tmp = sombrero_in->ptr + coord_to_index(ix,mu);
+                    random_su3(sombrero_in_tmp->c);
+                }
+            }
+        }
+        printf("Initialisation Ok\n");
+
+        sombrero_to_maxeler_gauge_field_O(sombrero_in,maxelerO);
+
+        printf("Translation Ok\n");
+
+        { // check that all the matrices are ok
+            for(int i=0;i<T*X*Y*Z/2*4;++i){
+                printf("%d  ",i);
+                su3 t  = maxelerO[i];
+                float norm0err = crealf(t.c00*conj(t.c00)+ t.c10*conj(t.c10)+ t.c20*conj(t.c20))-1;
+                printf("norm0: %.18lf ",norm0err);
+                assert(norm0err*norm0err < 1.0e-6);
+                float norm1err = crealf(t.c01*conj(t.c01)+ t.c11*conj(t.c11)+ t.c21*conj(t.c21))-1;
+                printf("norm1: %.18lf ",norm1err);
+                assert(norm1err*norm1err < 1.0e-6);
+                float orthoerr = cabsf(t.c01*conj(t.c00)+ t.c11*conj(t.c10)+ t.c21*conj(t.c20));
+                printf("ortho: %.18lf \n",orthoerr);
+                assert(orthoerr < 3.0e-5);
+            }
+        }
+        free_gfield_f(sombrero_in);
+        free(maxelerO);
+        printf("One-way determinant check - odd: Ok\n");
+
+    }
 
     {// round-trip test
         suNf_field* sombrero_in = alloc_gfield_f(&glattice);
@@ -242,28 +287,42 @@ int main(int argc, char* argv[]){
                     suNf* sombrero_in_tmp = sombrero_in->ptr + coord_to_index(ix,mu);
                     suNf* sombrero_out_tmp = sombrero_out->ptr + coord_to_index(ix,mu);
                     for(int c=0;c<9;++c){
-                        double  in_re =  sombrero_in_tmp->c[c].re;
-                        double out_re = sombrero_out_tmp->c[c].re;
+                        {
+                            float  in_re =  sombrero_in_tmp->c[c].re;
+                            float out_re = sombrero_out_tmp->c[c].re;
+                            float  error = in_re - out_re;
 
-                        if(in_re != out_re){
-                            printf("Error: ix=%d, d=%d, c=%d, out_re: %.18lf , in_re: %.18lf\n",
-                                   ix,c,out_re,in_re);
-                            assert(0);
+                            if(fabs(error)>3.3e-5){
+                                printf("Error: ix=%d, c=%d, out_re: %.18lf , in_re: %.18lf diff:%1.5e\n",
+                                       ix,c,out_re,in_re,error);
+                                assert(0);
+                            }
                         }
+                        {
+                            float  in_im =  sombrero_in_tmp->c[c].im;
+                            float out_im = sombrero_out_tmp->c[c].im;
+                            float  error = in_im - out_im;
 
-                        double  in_im =  sombrero_in_tmp->c[c].im;
-                        double out_im = sombrero_out_tmp->c[c].im;
-
-                        if(in_im != out_im){
-                            printf("Error: ix=%d, d=%d, c=%d, out_im: %.18lf , in_im: %.18lf\n",
-                                   ix,c,out_im,in_im);
-                            assert(0);
+                            if(fabs(error)>3.3e-5){
+                                printf("Error: ix=%d, c=%d, out_im: %.18lf , in_im: %.18lf diff:%1.5e\n",
+                                       ix,c,out_im,in_im,error);
+                                assert(0);
+                            }
                         }
                     }
                 }
             }
         }
+
+        free_gfield_f(sombrero_in);
+        free_gfield_f(sombrero_out);
+        free(maxeler_intermediateE);
+        free(maxeler_intermediateO);
     }
+
+    finalize_process();
+    return 0;
+
 }
 
 

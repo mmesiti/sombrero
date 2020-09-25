@@ -11,13 +11,13 @@ static int _lexord4d(int   x1, int   x2, int   x3, int   x4,
                           x4;
 }
 
-int maxeler_gaugeE_idx(int x, int y, int z, int t){
-    return 4*_lexord4d(x, y, z, t,
-                       X, Y, Z, T) / 2 ;
+int maxeler_gaugequartetE_idx(int x, int y, int z, int t){
+    return _lexord4d(x, y, z, t,
+                     X, Y, Z, T) / 2 ;
 }
 
-int maxeler_gaugeO_idx(int x, int y, int z, int t){
-    return maxeler_gaugeE_idx(x, y, z, t);
+int maxeler_gaugequartetO_idx(int x, int y, int z, int t){
+    return maxeler_gaugequartetE_idx(x, y, z, t);
 }
 
 int maxeler_spinorE_idx(int x, int y, int z, int t){
