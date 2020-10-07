@@ -1,4 +1,4 @@
-# Notes on the maxeler-sombrero interface.
+Notes on the maxeler-sombrero interface. -*- mode: org -*-
 
 Maxeler provides an implementation of the CG algorithm in terms of
 - spinor fields
@@ -64,9 +64,8 @@ consistency**.
 By default, sombrero uses the `g5Cphi_eopre_sq` function as the sparse operator for the 
 CG.
 
-# Sombrero
+### Sombrero
 
-WIP
 
 * g5Cphi_eopre(mass,etmp,sptr)
 ** Cphi_eopre(mass,etmp,sptr)
@@ -75,6 +74,5 @@ WIP
 *** Dphi_(dptr, otmp);
 *** spinor_field_minus_f(dptr, dptr);
 *** Cphi_(mass, dptr, sptr, 1);
-
-(1-C Deo Cinv Doe) sptr
+(C_ee  - Deo C_oo_inv Doe) sptr
 ** spinor_field_g5_assign_f(etmp)

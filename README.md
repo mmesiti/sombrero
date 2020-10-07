@@ -22,11 +22,15 @@ cd sombrero
 make
 ```
 
+### MaxCG-specific info
 To compile the version using Maxeler's CG implementation, run
 
 ```
 make maxeler
 ```
+
+Notice that `libmaxcg.so` must be available. By default, it's looked for in `LibHR/MaxelerInterface` (see `Make/MkRules`). 
+
 
 ## Usage
 
