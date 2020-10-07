@@ -15,5 +15,6 @@ void gaussian_spinor_field(spinor_field *s);
 void gaussian_spinor_field_flt(spinor_field_flt *s);
 
 void flat_source(spinor_field *s);
+void flat_source_flt(spinor_field_flt *s);
 
 #endif

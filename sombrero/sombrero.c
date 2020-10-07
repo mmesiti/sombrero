@@ -26,9 +26,46 @@
 #include "random.h"
 
 
-static int cg_test(spinor_field *in, spinor_field *out, int iterations);
 int init_mc();
 int end_mc();
+
+#ifdef FAKE_MAXELER
+int init_mc_fake();
+#define OPERATOR maxeler_fake_eopre_sq_flt
+int end_mc_fake();
+#else
+#define OPERATOR g5Cphi_eopre_sq
+#endif
+
+#ifdef SINGLE_PRECISION
+#define SPINOR_FIELD_TYPE spinor_field_flt
+#define _ALLOC_SPINOR_FIELD_F alloc_spinor_field_f_flt
+#define _FLAT_SOURCE flat_source_flt
+#define _FREE_SPINOR_FIELD_F free_spinor_field_f_flt
+#define _SPINOR_FIELD_ADD_ASSIGN_F spinor_field_add_assign_f_flt
+#define _SPINOR_FIELD_COPY_F spinor_field_copy_f_flt
+#define _SPINOR_FIELD_MUL_ADD_ASSIGN_F spinor_field_mul_add_assign_f_flt
+#define _SPINOR_FIELD_MUL_ADD_ASSIGN_F spinor_field_mul_add_assign_f_flt
+#define _SPINOR_FIELD_MUL_F spinor_field_mul_f_flt
+#define _SPINOR_FIELD_PROD_RE_F spinor_field_prod_re_f_flt
+#define _SPINOR_FIELD_SQNORM_F spinor_field_sqnorm_f_flt
+#define _SPINOR_FIELD_SUB_F spinor_field_sub_f_flt
+#else
+#define SPINOR_FIELD_TYPE spinor_field
+#define _ALLOC_SPINOR_FIELD_F alloc_spinor_field_f
+#define _FLAT_SOURCE flat_source
+#define _FREE_SPINOR_FIELD_F free_spinor_field_f
+#define _SPINOR_FIELD_ADD_ASSIGN_F spinor_field_add_assign_f
+#define _SPINOR_FIELD_COPY_F spinor_field_copy_f
+#define _SPINOR_FIELD_MUL_ADD_ASSIGN_F spinor_field_mul_add_assign_f
+#define _SPINOR_FIELD_MUL_ADD_ASSIGN_F spinor_field_mul_add_assign_f
+#define _SPINOR_FIELD_MUL_F spinor_field_mul_f
+#define _SPINOR_FIELD_PROD_RE_F spinor_field_prod_re_f
+#define _SPINOR_FIELD_SQNORM_F spinor_field_sqnorm_f
+#define _SPINOR_FIELD_SUB_F spinor_field_sub_f
+#endif
+
+static int cg_test(SPINOR_FIELD_TYPE *in, SPINOR_FIELD_TYPE *out, int iterations);
 
 
 /* Sort the directions based on size */
@@ -338,15 +375,21 @@ int main(int argc,char *argv[]) {
   /* Initialize gauge, boundary conditions and clover  */
   init_mc();
 
+#ifdef FAKE_MAXELER
+  init_mc_fake();
+#endif
+
+
+
   lprintf("MAIN",10," Performing %d conjugate gradient iterations\n", iterations);
   lprintf("MAIN",0," %s: %.2fe9 floating point operations and %.2fe6 bytes communicated\n",casename,Gflops,bytes_communicated);
   lprintf("MAIN",0," %s: %.2f operations per byte\n",casename, 100*Gflops/bytes_communicated);
 
   /* Generate a pseudofermion field */
   struct timeval start, end, etime;
-  spinor_field *in = alloc_spinor_field_f(1, &glat_default);
-  spinor_field *out = alloc_spinor_field_f(1, &glat_default);
-	flat_source(in);
+  SPINOR_FIELD_TYPE *in = _ALLOC_SPINOR_FIELD_F(1, &glat_default);
+  SPINOR_FIELD_TYPE *out = _ALLOC_SPINOR_FIELD_F(1, &glat_default);
+	_FLAT_SOURCE(in);
 
   gettimeofday(&start,0);
 
@@ -358,11 +401,15 @@ int main(int argc,char *argv[]) {
   lprintf("RESULT",0," %s %.2f Gflops in %f seconds\n",casename,Gflops,seconds);
   lprintf("RESULT",0," %s %.2f Gflops/seconds\n",casename,Gflops/seconds);
   
-  free_spinor_field_f(out);
+  _FREE_SPINOR_FIELD_F(out);
  
   /* Deallocate gauge */
   end_mc();
-  
+
+#ifdef FAKE_MAXELER
+  end_mc_fake();
+#endif
+ 
   /* close communications */
   finalize_process();
   
@@ -371,13 +418,13 @@ int main(int argc,char *argv[]) {
 
 
 /* Perform a number of iterations of the multishift conjugate gradient
- * with the Dirac operator g5Cphi_eopre_sq
+ * with the Dirac operator OPERATOR
  */
 #ifndef MAXELER
-static int cg_test(spinor_field *in, spinor_field *out, int iterations){
+static int cg_test(SPINOR_FIELD_TYPE *in, SPINOR_FIELD_TYPE *out, int iterations){
 
-  spinor_field *k,*r,*Mk;
-  spinor_field *p;
+  SPINOR_FIELD_TYPE *k,*r,*Mk;
+  SPINOR_FIELD_TYPE *p;
   double omega, oldomega, gamma;
   double alpha, lambda, delta;
   double innorm2;
@@ -399,7 +446,7 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
 #endif
 
   /* allocate spinors fields and aux real variables */
-  p = alloc_spinor_field_f(4,in->type);
+  p = _ALLOC_SPINOR_FIELD_F(4,in->type);
   k=p+par->n;
   r=k+1;
   Mk=r+1;
@@ -412,42 +459,44 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
   cgiter = 0;
   omega = 1.;
   gamma = 0.;
-  innorm2=spinor_field_sqnorm_f(in);
+  innorm2=_SPINOR_FIELD_SQNORM_F(in);
 
   /* use out[0] as initial guess */
-  g5Cphi_eopre_sq(0.1,Mk,&out[0]);
+
+
+  OPERATOR(0.1,Mk,&out[0]);
   ++cgiter;
-  spinor_field_mul_add_assign_f(Mk,-par->shift[0],&out[0]);
-  spinor_field_sub_f(r,in,Mk);
+  _SPINOR_FIELD_MUL_ADD_ASSIGN_F(Mk,-par->shift[0],&out[0]);
+  _SPINOR_FIELD_SUB_F(r,in,Mk);
   
-  spinor_field_copy_f(k, r);
-  delta=spinor_field_sqnorm_f(r);
+  _SPINOR_FIELD_COPY_F(k, r);
+  delta=_SPINOR_FIELD_SQNORM_F(r);
   z1[0]=z2[0]=1.;
-  spinor_field_copy_f(&p[0], r);
+  _SPINOR_FIELD_COPY_F(&p[0], r);
 
   /* cg recursion */
   do {
-    g5Cphi_eopre_sq(0.1,Mk,k);
-    alpha = spinor_field_prod_re_f(k,Mk);
+    OPERATOR(0.1,Mk,k);
+    alpha = _SPINOR_FIELD_PROD_RE_F(k,Mk);
     oldomega = omega;
     omega = - delta/alpha;
     
     z3[0] = oldomega*z1[0]*z2[0]/(omega*gamma*(z1[0]-z2[0])+z1[0]*oldomega*(1.+par->shift[0]*omega));
-    spinor_field_mul_add_assign_f(&out[0],-omega*z3[0]/z2[0],&p[0]);
+    _SPINOR_FIELD_MUL_ADD_ASSIGN_F(&out[0],-omega*z3[0]/z2[0],&p[0]);
     
-    spinor_field_mul_add_assign_f(r,omega,Mk);
-    lambda=spinor_field_sqnorm_f(r);
+    _SPINOR_FIELD_MUL_ADD_ASSIGN_F(r,omega,Mk);
+    lambda=_SPINOR_FIELD_SQNORM_F(r);
     gamma=lambda/delta;
     delta=lambda;
 
-    spinor_field_mul_f(k,gamma,k);
-    spinor_field_add_assign_f(k,r);
+    _SPINOR_FIELD_MUL_F(k,gamma,k);
+    _SPINOR_FIELD_ADD_ASSIGN_F(k,r);
     notconverged=0; /* assume that all vectors have converged */
     
     /* check convergence of vectors */
     notconverged++;
-    spinor_field_mul_f(&p[0],gamma*z3[0]*z3[0]/(z2[0]*z2[0]),&p[0]);
-    spinor_field_mul_add_assign_f(&p[0],z3[0],r);
+    _SPINOR_FIELD_MUL_F(&p[0],gamma*z3[0]*z3[0]/(z2[0]*z2[0]),&p[0]);
+    _SPINOR_FIELD_MUL_ADD_ASSIGN_F(&p[0],z3[0],r);
     z1[0]=z2[0];
     z2[0]=z3[0];
 
@@ -455,17 +504,17 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
   } while ( cgiter < iterations );
 
   double norm;
-  g5Cphi_eopre_sq(0.1,Mk,&out[0]);
+  OPERATOR(0.1,Mk,&out[0]);
   ++cgiter;
-  spinor_field_mul_add_assign_f(Mk,-par->shift[0],&out[0]);
-  spinor_field_sub_f(Mk,Mk,in);
-  norm=spinor_field_sqnorm_f(Mk)/spinor_field_sqnorm_f(in);
+  _SPINOR_FIELD_MUL_ADD_ASSIGN_F(Mk,-par->shift[0],&out[0]);
+  _SPINOR_FIELD_SUB_F(Mk,Mk,in);
+  norm=_SPINOR_FIELD_SQNORM_F(Mk)/_SPINOR_FIELD_SQNORM_F(in);
   lprintf("RESULT",20,"Deviation from expected %1.8e\n",norm);
   error( norm > 1e-8,1,"main [sombrero.c]", "Result of CG inversion incorrect\n");
 
 
   /* free memory */
-  free_spinor_field_f(p);
+  _FREE_SPINOR_FIELD_F(p);
   free(z1); free(z2); free(z3);
 
   /* return number of cg iter */
@@ -475,7 +524,7 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
 #ifdef MAXELER
 #include "maxeler.h"
 #include "assert.h"
-static int cg_test(spinor_field *in, spinor_field *out, int iterations){
+static int cg_test(SPINOR_FIELD_TYPE *in, SPINOR_FIELD_TYPE *out, int iterations){
 
   int cgiter;
 
@@ -511,7 +560,7 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
 
   {
     cg_spinor *max_out_x;
-    double innorm2=spinor_field_sqnorm_f(in);
+    double innorm2=_SPINOR_FIELD_SQNORM_F(in);
     double res = 1E-50;
     double gamma = -0.0125; // TODO: check
 
@@ -567,15 +616,15 @@ static int cg_test(spinor_field *in, spinor_field *out, int iterations){
     par->n = 1;
     par->shift = &shift;
 
-    spinor_field* Mk = alloc_spinor_field_f(1,in->type);
-    g5Cphi_eopre_sq(0.1,Mk,&out[0]);
+    SPINOR_FIELD_TYPE* Mk = _ALLOC_SPINOR_FIELD_F(1,in->type);
+    OPERATOR(0.1,Mk,&out[0]);
     ++cgiter;
-    spinor_field_mul_add_assign_f(Mk,-par->shift[0],&out[0]);
-    spinor_field_sub_f(Mk,Mk,in);
-    double norm=spinor_field_sqnorm_f(Mk)/spinor_field_sqnorm_f(in);
+    _SPINOR_FIELD_MUL_ADD_ASSIGN_F(Mk,-par->shift[0],&out[0]);
+    _SPINOR_FIELD_SUB_F(Mk,Mk,in);
+    double norm=_SPINOR_FIELD_SQNORM_F(Mk)/_SPINOR_FIELD_SQNORM_F(in);
     lprintf("RESULT",0,"Deviation from expected %1.8e, in %d iterations\n",norm,cgiter);
     error( norm > 1e-8,1,"main [sombrero.c]", "Result of CG inversion incorrect\n");
-    free_spinor_field_f(Mk);
+    _FREE_SPINOR_FIELD_F(Mk);
   }
 
   // deallocations

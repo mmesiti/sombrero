@@ -119,7 +119,7 @@ _DECLARE_MEMORY_FUNC(gfield, suNg_field, 4);
 _DECLARE_MEMORY_FUNC(gfield_flt, suNg_field_flt, 4);
 
 _DECLARE_MEMORY_FUNC(gfield_f, suNf_field, 4);
-_DECLARE_MEMORY_FUNC(gfield_f_flt, suNf_field_flt, 4);
+_DECLARE_MEMORY_FUNC(gfield_f_flt, suNfc_field_flt, 4);
 _DECLARE_MEMORY_FUNC(scalar_field, suNg_scalar_field, 1);
 
 _DECLARE_MEMORY_FUNC(avfield, suNg_av_field, 4);
@@ -131,6 +131,7 @@ _DECLARE_MEMORY_FUNC(clover_ldl, ldl_field, 1);
 _DECLARE_MEMORY_FUNC(clover_term, suNffull_field, 4);
 _DECLARE_MEMORY_FUNC(clover_force, suNffull_field, 6);
 #else
+_DECLARE_MEMORY_FUNC(clover_term_flt, suNfc_field_flt, 4);
 _DECLARE_MEMORY_FUNC(clover_term, suNfc_field, 4);
 _DECLARE_MEMORY_FUNC(clover_force, suNf_field, 6);
 #endif

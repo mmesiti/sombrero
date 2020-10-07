@@ -16,7 +16,7 @@ void g5Dphi(double m0, spinor_field *out, spinor_field *in);
 void g5Dphi_sq(double m0, spinor_field *out, spinor_field *in);
 
 void Dphi_flt_(spinor_field_flt *out, spinor_field_flt *in);
-void Dphi_flt(double m0, spinor_field_flt *out, spinor_field_flt *in);
+void Dphi_flt(float m0, spinor_field_flt *out, spinor_field_flt *in);
 void g5Dphi_flt(double m0, spinor_field_flt *out, spinor_field_flt *in);
 void g5Dphi_sq_flt(double m0, spinor_field_flt *out, spinor_field_flt *in);
 
@@ -86,6 +86,10 @@ void Dff(spinor_field *out, spinor_field *in);
 void Dff_dagger(spinor_field *out, spinor_field *in);
 void Dff_sq(spinor_field *out, spinor_field *in);
 
+#ifdef FAKE_MAXELER
+/* Fake version of Dirac Operator used in MaxCG */
+void maxeler_fake_eopre_sq_flt(float mass, spinor_field_flt *dptr, spinor_field_flt* sptr);
+#endif
 
 #endif
 	

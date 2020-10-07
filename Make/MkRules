@@ -102,9 +102,10 @@ su3sym/%: CPPFLAGS += -DREPR_SYMMETRIC -DREPR_NAME=\"REPR_SYMMETRIC\" -DGAUGE_SU
 sp4/%: CPPFLAGS += -DREPR_FUNDAMENTAL -DREPR_NAME=\"REPR_FUNDAMENTAL\" -DGAUGE_SPN -DNG=4
 sp4adj/%: CPPFLAGS += -DREPR_ADJOINT -DREPR_NAME=\"REPR_ADJOINT\" -DGAUGE_SPN -DNG=4
 su3max/%: CPPFLAGS += -DREPR_FUNDAMENTAL -DREPR_NAME=\"REPR_FUNDAMENTAL\" -DGAUGE_SUN -DNG=3 -DMAXELER
+su3fmax/%: CPPFLAGS += -DREPR_FUNDAMENTAL -DREPR_NAME=\"REPR_FUNDAMENTAL\" -DGAUGE_SUN -DNG=3 -DFAKE_MAXELER -DSINGLE_PRECISION
 
 
-su2/%.d su2adj/%.d su3/%.d su3sym/%.d sp4/%.d sp4adj/%.d su3max/%.d: %.c
+su2/%.d su2adj/%.d su3/%.d su3sym/%.d sp4/%.d sp4adj/%.d su3max/%.d su3fmax/%.d: %.c
 	mkdir -p $(dir $@)
 	echo "$(_col_deps)Dependences$(_col_norm) $(call _cfname,$@)..." ;\
 	$(GCC) -MM -MG -MT "$@ $(patsubst .%.d,%.o,$@)" $(CPPFLAGS) $< > $@ 
@@ -147,13 +148,19 @@ sombrero/sombrero3max: sombrero/su3max/sombrero.o sombrero/su3max/hmc_utils.o $(
 	echo $(_col_link)Linking$(_col_norm) $(call _cfname,$@)...
 	$(CC) -o $@ $^ $(CFLAGS) -LLibHR -lhr_su3max -lm -LLibHR/MaxelerInterface -lmaxcg;\
 
+sombrero/sombrero3fmax: sombrero/su3fmax/sombrero.o sombrero/su3fmax/hmc_utils.o $(TOPDIR)/LibHR/libhr_su3fmax.a
+	echo $(_col_link)Linking$(_col_norm) $(call _cfname,$@)...
+	$(CC) -o $@ $^ $(CFLAGS) -LLibHR -lhr_su3fmax -lm;\
+
 sombrero/su2/%.o    sombrero/su2adj/%.o sombrero/su3/%.o   : SRC=$(patsubst %.o,%.c,$@)
 sombrero/su3sym/%.o sombrero/sp4/%.o    sombrero/sp4adj/%.o: SRC=$(patsubst %.o,%.c,$@)
 sombrero/su3max/%.o                                        : SRC=$(patsubst %.o,%.c,$@)
+sombrero/su3fmax/%.o                                        : SRC=$(patsubst %.o,%.c,$@)
 
 sombrero/su2/%.o    sombrero/su2adj/%.o sombrero/su3/%.o   : DEP=$(patsubst %.o,%.d,$@)
 sombrero/su3sym/%.o sombrero/sp4/%.o    sombrero/sp4adj/%.o: DEP=$(patsubst %.o,%.d,$@)
 sombrero/su3max/%.o                                        : DEP=$(patsubst %.o,%.d,$@)
+sombrero/su3fmax/%.o                                        : DEP=$(patsubst %.o,%.d,$@)
 
 sombrero/su2/%.o: CPPFLAGS += -DREPR_FUNDAMENTAL -DREPR_NAME=\"REPR_FUNDAMENTAL\" -DGAUGE_SUN -DNG=2
 sombrero/su2adj/%.o: CPPFLAGS += -DREPR_ADJOINT -DREPR_NAME=\"REPR_ADJOINT\" -DGAUGE_SUN -DNG=2
@@ -163,9 +170,10 @@ sombrero/sp4/%.o: CPPFLAGS += -DREPR_FUNDAMENTAL -DREPR_NAME=\"REPR_FUNDAMENTAL\
 sombrero/sp4adj/%.o: CPPFLAGS += -DREPR_ADJOINT -DREPR_NAME=\"REPR_ADJOINT\" -DGAUGE_SPN -DNG=4
 sombrero/su3max/%.o: CPPFLAGS += -DREPR_FUNDAMENTAL -DREPR_NAME=\"REPR_FUNDAMENTAL\" -DGAUGE_SUN -DNG=3 \
 -DMAXELER -I$(TOPDIR)
+sombrero/su3fmax/%.o: CPPFLAGS += -DREPR_FUNDAMENTAL -DREPR_NAME=\"REPR_FUNDAMENTAL\" -DGAUGE_SUN -DNG=3 -DFAKE_MAXELER -DSINGLE_PRECISION
 
 sombrero/su2/%.o sombrero/su2adj/%.o sombrero/su3/%.o sombrero/su3sym/%.o\
-sombrero/sp4/%.o sombrero/sp4adj/%.o sombrero/su3max/%.o: sombrero/%.c $(RBLD)
+sombrero/sp4/%.o sombrero/sp4adj/%.o sombrero/su3max/%.o sombrero/su3fmax/%.o: sombrero/%.c $(RBLD)
 	if test "$(DFILES)" = ""; then \
 		mkdir -p $(dir $@) ;\
 		$(MAKE) -C sombrero $(subst sombrero/,,$(DEP)) &&\
@@ -181,11 +189,13 @@ sombrero/sp4/%.o sombrero/sp4adj/%.o sombrero/su3max/%.o: sombrero/%.c $(RBLD)
 su2/%.o    su2adj/%.o su3/%.o   : SRC=$(patsubst %.o,%.c,$@)
 su3sym/%.o sp4/%.o    sp4adj/%.o: SRC=$(patsubst %.o,%.c,$@)
 su3max/%.o                      : SRC=$(patsubst %.o,%.c,$@)
+su3fmax/%.o                     : SRC=$(patsubst %.o,%.c,$@)
 su2/%.o    su2adj/%.o su3/%.o   : DEP=$(patsubst %.o,%.d,$@)
 su3sym/%.o sp4/%.o    sp4adj/%.o: DEP=$(patsubst %.o,%.d,$@)
 su3max/%.o                      : DEP=$(patsubst %.o,%.d,$@)
+su3fmax/%.o                     : DEP=$(patsubst %.o,%.d,$@)
 su2/%.o su2adj/%.o su3/%.o su3sym/%.o sp4/%.o\
-sp4adj/%.o su3max/%.o: %.c $(MKDIR)/MkFlags $(RBLD)
+sp4adj/%.o su3max/%.o su3fmax/%.o: %.c $(MKDIR)/MkFlags $(RBLD)
 	if test "$(DFILES)" = ""; then \
 		mkdir -p $(dir $@) &&\
 		$(MAKE) $(DEP) &&\
@@ -207,13 +217,14 @@ SHARED_LIBOBJS := $(addsuffix .o,$(basename $(LIBCFILES)))
 LibHR/libhr_%.a: rebuild
 	$(MAKE) -C $(dir $@) $(notdir $@)
 
-libhr_su2.a   :  $(patsubst %,su2/%   ,$(LIBOBJS)) $(SHARED_LIBOBJS)
-libhr_su2adj.a:  $(patsubst %,su2adj/%,$(LIBOBJS)) $(SHARED_LIBOBJS)
-libhr_su3.a   :  $(patsubst %,su3/%   ,$(LIBOBJS)) $(SHARED_LIBOBJS)
-libhr_su3sym.a:  $(patsubst %,su3sym/%,$(LIBOBJS)) $(SHARED_LIBOBJS)
-libhr_sp4.a   :  $(patsubst %,sp4/%   ,$(LIBOBJS)) $(SHARED_LIBOBJS)
-libhr_sp4adj.a:  $(patsubst %,sp4adj/%,$(LIBOBJS)) $(SHARED_LIBOBJS)
-libhr_su3max.a:  $(patsubst %,su3max/%,$(LIBOBJS)) $(SHARED_LIBOBJS)
+libhr_su2.a   :  $(patsubst %,su2/%    ,$(LIBOBJS)) $(SHARED_LIBOBJS)
+libhr_su2adj.a:  $(patsubst %,su2adj/% ,$(LIBOBJS)) $(SHARED_LIBOBJS)
+libhr_su3.a   :  $(patsubst %,su3/%    ,$(LIBOBJS)) $(SHARED_LIBOBJS)
+libhr_su3sym.a:  $(patsubst %,su3sym/% ,$(LIBOBJS)) $(SHARED_LIBOBJS)
+libhr_sp4.a   :  $(patsubst %,sp4/%    ,$(LIBOBJS)) $(SHARED_LIBOBJS)
+libhr_sp4adj.a:  $(patsubst %,sp4adj/% ,$(LIBOBJS)) $(SHARED_LIBOBJS)
+libhr_su3max.a:  $(patsubst %,su3max/% ,$(LIBOBJS)) $(SHARED_LIBOBJS)
+libhr_su3fmax.a: $(patsubst %,su3fmax/%,$(LIBOBJS)) $(SHARED_LIBOBJS)
 
 libhr_su2.a:
 	echo "$(_col_link)Creating library$(_col_norm) $(call _cfname,$@)..." ;\
@@ -242,6 +253,10 @@ libhr_sp4adj.a:
 libhr_su3max.a:
 	echo "$(_col_link)Creating library$(_col_norm) $(call _cfname,$@)..." ;\
 	ar -rcs $@ $(patsubst %,su3max/%,$(LIBOBJS)) $(SHARED_LIBOBJS)  2>/dev/null
+
+libhr_su3fmax.a:
+	echo "$(_col_link)Creating library$(_col_norm) $(call _cfname,$@)..." ;\
+	ar -rcs $@ $(patsubst %,su3fmax/%,$(LIBOBJS)) $(SHARED_LIBOBJS)  #2>/dev/null # DEBUG
 
 #avoid the use of implicit suffix rules!
 .SUFFIXES:
@@ -274,6 +289,9 @@ clean-libsp4adj:
 
 clean-libsu3max:
 	rm -r libsu3max
+
+clean-libsu3fmax:
+	rm -r libsu3fmax
 
 clean:: $(patsubst %,clean-%,$(SUBDIRS))
 	echo "$(_col_clean)Cleaning$(_col_norm) $(call _cfname,$(CDIR))..."

@@ -12,10 +12,11 @@ default:
 	$(MAKE) sombrero/sombrero5
 	$(MAKE) sombrero/sombrero6
 
-
 maxeler:
 	$(MAKE) sombrero/sombrero3max
 
+maxeler_fake:
+	$(MAKE) sombrero/sombrero3fmax
 
 include $(MKDIR)/MkRules
 

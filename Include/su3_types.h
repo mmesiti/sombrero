@@ -102,6 +102,8 @@ typedef suNf_flt suNf_FMAT_flt;
 
 typedef suNf suNffull;
 
+typedef suNf_flt suNffull_flt;
+
 typedef struct
 {
    suNf_vector c[4];

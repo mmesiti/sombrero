@@ -35,6 +35,19 @@ void flat_source(spinor_field *s) {
 	complete_sf_sendrecv(s);
 }
 
+void flat_source_flt(spinor_field_flt *s) {
+	_ONE_SPINOR_FOR(s) {
+    	_spinor_one_f(*_SPINOR_PTR(s));
+    }
+	//if(CID == 0){
+	// 	_FIELD_AT(s,0)->c[0].c[0].re = 1.0;
+	//}
+	apply_BCs_on_spinor_field_flt(s);
+
+	start_sf_sendrecv_flt(s);
+	complete_sf_sendrecv_flt(s);
+}
+
 void gaussian_spinor_field_flt(spinor_field_flt *s) {
 	const float c1=(float)(1./sqrt(2.));
 	int i;

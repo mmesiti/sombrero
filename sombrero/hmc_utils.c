@@ -12,6 +12,7 @@
 #include "utils.h"
 #include "communications.h"
 #include "clover_tools.h"
+#include "fake_clover_tools.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -67,7 +68,14 @@ int init_mc() {
 
   return 0;
 }
-    
+
+void init_mc_fake(){
+#ifdef WITH_CLOVER
+  clover_init_flt_fake();
+  zero_clover_term_flt();
+#endif
+}
+
 /* clean up memory */
 int end_mc() {
   free_BCs();
@@ -79,4 +87,11 @@ int end_mc() {
 #endif
 
   return 0;
+}
+
+void end_mc_fake(){
+#ifdef WITH_CLOVER
+  free_clover_term_flt(cl_term_flt);
+#endif
+
 }

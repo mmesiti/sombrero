@@ -36,8 +36,8 @@ void free_gfield_f(suNf_field *u);
 suNf_field* alloc_gfield_f(geometry_descriptor* type);
 void free_gfield_flt(suNg_field_flt *u);
 suNg_field_flt* alloc_gfield_flt(geometry_descriptor* type);
-void free_gfield_f_flt(suNf_field_flt *u);
-suNf_field_flt* alloc_gfield_f_flt(geometry_descriptor* type);
+void free_gfield_f_flt(suNfc_field_flt *u);
+suNfc_field_flt* alloc_gfield_f_flt(geometry_descriptor* type);
 void free_gtransf(suNg_field *u);
 suNg_field* alloc_gtransf(geometry_descriptor* type);
 void free_avfield(suNg_av_field *u);
@@ -55,7 +55,9 @@ void free_clover_term(suNffull_field *u);
 suNf_field* alloc_clover_force(geometry_descriptor* type);
 void free_clover_force(suNf_field *u);
 suNfc_field* alloc_clover_term(geometry_descriptor* type);
+suNfc_field_flt* alloc_clover_term_flt(geometry_descriptor* type);
 void free_clover_term(suNfc_field *u);
+void free_clover_term_flt(suNfc_field_flt*);
 #endif
 
 

@@ -7,8 +7,7 @@
 *
 * File Dphi_flt.c
 *
-* Action of the Wilson-Dirac operator D and hermitian g5D on a given 
-* single-precision spinor field
+* Action of the Wilson-Dirac operator D on a given single-precision spinor field
 *
 *******************************************************************************/
 
@@ -24,7 +23,6 @@
 #include "geometry.h"
 #include "communications.h"
 #include "memory.h"
-#include "clover_tools.h" // TODO: We need clover tools in single precision
 
 #ifdef ROTATED_SF
 #include "update.h"
@@ -36,7 +34,7 @@ extern rhmc_par _update_par; /* Update/update_rhmc.c */
  * Init of Dphi_flt
  */
 
-static int init=1;
+static int init_dirac=1;
 static spinor_field_flt *gtmp=NULL;
 static spinor_field_flt *etmp=NULL;
 static spinor_field_flt *otmp=NULL;
@@ -45,16 +43,16 @@ static void free_mem() {
     if (gtmp!=NULL) { free_spinor_field_f_flt(gtmp); etmp=NULL; }
     if (etmp!=NULL) { free_spinor_field_f_flt(etmp); etmp=NULL; }
     if (otmp!=NULL) { free_spinor_field_f_flt(otmp); otmp=NULL; }
-    init=1;
+    init_dirac=1;
 }
 
 static void init_Dirac() {
-    if (init) {
+    if (init_dirac) {
         gtmp=alloc_spinor_field_f_flt(1,&glattice);
         etmp=alloc_spinor_field_f_flt(1,&glat_even);
         otmp=alloc_spinor_field_f_flt(1,&glat_odd);
         atexit(&free_mem);
-        init=0;
+        init_dirac=0;
     }
 }
 
@@ -379,9 +377,7 @@ typedef suNffull_flt clover_type_flt;
 
 /* Flop count = VOL*(16*NF*NF + 24*NF), where
  */
-
-// TO CHECK AND FIX
-static void Cphi_flt_(float mass, spinor_field_flt *dptr, spinor_field_flt *sptr, int assign)
+static void Cphi_flt_(float mass, spinor_field_flt *dptr, spinor_field_flt *sptr)
 {
 	// Correct mass term
 	mass = (4.f+mass);
@@ -425,152 +421,46 @@ static void Cphi_flt_(float mass, spinor_field_flt *dptr, spinor_field_flt *sptr
 		_spinor_mul_add_assign_f(tmp, mass, *in);
 
 		// Store
-		if(assign)
-		{
-			_spinor_add_assign_f(*out, tmp);
-		}
-		else
-		{
-			*out = tmp;
-		}
+        *out = tmp;
 	}
+}
+#endif
+
+/*  This file contains the implementation of all the functions needed */
+#ifdef WITH_CLOVER
+
+void maxeler_fake_eopre_flt(float mass, spinor_field_flt *dptr, spinor_field_flt *sptr)
+{
+	if(init_dirac)
+	{
+		init_Dirac();
+	}
+	apply_BCs_on_spinor_field_flt(sptr);
+    // 1 - D_{ee}^{-1} D_{eo} D_{oo}^{-1} D_{oe}
+    {
+        // D_{ee}^{-1} D_{eo} D_{oo}^{-1} D_{oe}
+	    Dphi_flt_(otmp, sptr);
+	    Cphi_flt_(mass, otmp, otmp);
+	    apply_BCs_on_spinor_field_flt(otmp);
+	    Dphi_flt_(dptr, otmp);
+	    apply_BCs_on_spinor_field_flt(dptr);
+	    Cphi_flt_(mass, dptr, dptr);
+    }
+
+    // 1 - (...)
+	spinor_field_sub_f_flt(dptr, sptr, dptr);
+}
+
+void maxeler_fake_eopre_sq_flt(float mass, spinor_field_flt *dptr, spinor_field_flt *sptr)
+{
+	if(init_dirac)
+	{
+		init_Dirac();
+	}
+
+	maxeler_fake_eopre_flt(mass, etmp, sptr);
+	maxeler_fake_eopre_flt(mass, dptr, etmp);
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#endif //#ifdef WITH_CLOVER

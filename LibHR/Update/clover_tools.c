@@ -223,6 +223,7 @@ static void _compute_clover_term(int id)
 	}
 }
 
+
 static void _compute_clover_force(int id, double coeff)
 {
 	complex A[2*NF][2*NF];
@@ -383,6 +384,7 @@ void compute_clover_term()
 	apply_BCs_on_clover_term(cl_term);
 }
 
+
 void compute_ldl_decomp(double sigma0)
 {
 	if(sigma == sigma0)
@@ -409,5 +411,7 @@ void clover_init(double csw)
 	sigma = 0xF00F;
 	csw_value = csw;
 }
+
+
 
 #endif //#ifdef WITH_CLOVER
