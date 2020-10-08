@@ -24,7 +24,9 @@
 #include "inverters.h"
 #include "update.h"
 #include "random.h"
-
+#ifdef FAKE_MAXELER
+#include "flop_count.h"
+#endif
 
 int init_mc();
 int end_mc();
@@ -220,11 +222,11 @@ static void read_cmdline(int argc, char* argv[]) {
 
   // -s: Set lattice size
   int x[4];
+
   if( !weak ){
     if( size == 0 ){
 
-      //x[0]=32; x[1]=24; x[2]=24; x[3]=24; // DEBUG
-      x[0]=8; x[1]=8; x[2]=8; x[3]=8;
+      x[0]=32; x[1]=24; x[2]=24; x[3]=24;
       error( n_nodes > 1728, 1, "read_cmdline [sombrero.c]",
       "Too many MPI ranks for a small lattice");
 
@@ -246,7 +248,7 @@ static void read_cmdline(int argc, char* argv[]) {
       error( n_nodes > 442368, 1, "read_cmdline [sombrero.c]",
       "Too many MPI ranks for a small lattice");
 
-    } 
+    }
   } else {
     // Weak scaling, increase lattice size with the number of MPI ranks
     if( size == 1 ){
@@ -363,8 +365,19 @@ int main(int argc,char *argv[]) {
 #else
   float matrix_mul_flops = 8*NF*NF - 2*NF;
 #endif
+
+#ifdef FAKE_MAXELER
+  float Gflops;
+  {
+    float site_operator_flops = site_maxeler_fake_eopre_sq_flt_flops;
+    Gflops = GLB_VOLUME*(
+      cg_out_of_loop_flops_per_site(site_operator_flops)+
+      iterations*cg_iteration_flops_per_site(site_operator_flops))/1.e9;
+  }
+#else
   float Gflops = (iterations+2)*GLB_VOLUME*( 96*matrix_mul_flops + 432*NF*NF + 984*NF + 15 )/1.e9;
   Gflops += GLB_VOLUME*(16*NF*NF*NF + 30*NF*NF - 14*NF) /1.e9;
+#endif
 
   /* Calculate the number of bytes communicated */
   long boundary_sizes = T_BORDER*2*X*Y*Z + X_BORDER*2*T*Y*Z +

@@ -158,7 +158,6 @@ _vector_mulc_star_f((r),eitheta_flt[3],vtmp)
  * here we are making the assumption that the geometry is such that
  * all even sites are in the range [0,VOLUME/2[ and all odd sites are
  * in the range [VOLUME/2,VOLUME[
- * Flop count = VOL*(16*MMUL + 76*NF), where
  */
 void Dphi_flt_(spinor_field_flt *out, spinor_field_flt *in)
 {
@@ -375,8 +374,6 @@ typedef suNffull_flt clover_type_flt;
 #define clover_multiply(a,b,c) _suNffull_multiply(a,b,c) 
 #endif
 
-/* Flop count = VOL*(16*NF*NF + 24*NF), where
- */
 static void Cphi_flt_(float mass, spinor_field_flt *dptr, spinor_field_flt *sptr)
 {
 	// Correct mass term
@@ -426,8 +423,8 @@ static void Cphi_flt_(float mass, spinor_field_flt *dptr, spinor_field_flt *sptr
 }
 #endif
 
-/*  This file contains the implementation of all the functions needed */
 #ifdef WITH_CLOVER
+
 
 void maxeler_fake_eopre_flt(float mass, spinor_field_flt *dptr, spinor_field_flt *sptr)
 {
