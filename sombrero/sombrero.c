@@ -369,7 +369,7 @@ int main(int argc,char *argv[]) {
 #ifdef FAKE_MAXELER
   float Gflops;
   {
-    float site_operator_flops = site_maxeler_fake_eopre_sq_flt_flops;
+    float site_operator_flops = site_maxeler_fake_eopre_sq_flt_flops();
     Gflops = GLB_VOLUME*(
       cg_out_of_loop_flops_per_site(site_operator_flops)+
       iterations*cg_iteration_flops_per_site(site_operator_flops))/1.e9;
